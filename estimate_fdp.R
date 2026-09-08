@@ -80,6 +80,18 @@ run_diann_fdp_analysis <- function(report_file = "",
   n_run <- a %>% select(Run) %>% distinct() %>% nrow()
 
   if (level == "protein") {
+    # Apply the foreign species entrapment ratio at protein level
+    if (entrapment_type == "auto" && !is.null(pep_file)) {
+      entrapment_type <- detect_entrapment_type_from_pep_file(pep_file)
+    }
+
+    if (entrapment_type == "foreign_celegans" && is.null(r)) {
+      r <- 0.7
+    }
+
+    cat("Protein-level entrapment type:", entrapment_type, "\n")
+    cat("Protein-level entrapment ratio (r):", r, "\n")
+    
     if (n_run >= 2) {
       cat("Multiple runs in the report file:", n_run, "\n")
       b <- a %>% select(`Protein.Group`, `Lib.PG.Q.Value`) %>% distinct()

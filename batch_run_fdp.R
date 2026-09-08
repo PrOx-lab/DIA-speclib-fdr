@@ -542,13 +542,25 @@ process_one <- function(parquet_path, db_hint, base_dir, level = "peptide") {
 
     plot_fdp_if_available(info, "peptide")
   } else {
+    # Use the foreign-species protein ratio when appropriate
+    # Random shuffling runs retain the one-fold paired method
+    r_arg <- if (info$entrapment == "foreign_celegans") 0.7 else NULL 
+
+    if (is.null(r_arg)){
+      message("Random shuffling protein entrapment: using paired method (no r value needed).")
+    } else {
+      message("Foreign-species protein entrapment: using combined method with r=", signif(r_arg, 4))
+    }
+
     run_diann_fdp_analysis(
       report_file = info$report,
       level       = "protein",
       pep_file    = NULL,
       prefix      = info$prefix,
       k_fold      = 1,
-      out_dir     = info$dir
+      out_dir     = info$dir,
+      r           = r_arg,
+      entrapment_type = info$entrapment
     )
 
     plot_fdp_if_available(info, "protein")
